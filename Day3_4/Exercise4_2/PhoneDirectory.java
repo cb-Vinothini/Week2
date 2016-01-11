@@ -4,35 +4,53 @@ import java.util.SortedMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.io.*;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import java.util.Iterator;
 
 public class PhoneDirectory{
+    private static final String [] FILE_HEADER_MAPPING = {"name","address","mobile","home","work"};
+
+    private static final String PERSON = "Person";
+    private static final String NAME = "name";
+    private static final String ADDRESS = "address";
+    private static final String MOBILE_PH = "mobile";
+    private static final String HOME_PH = "home";
+    private static final String WORK_PH = "work";
     
-    public static Contact[] setData(){
-        List<String> no1 = new ArrayList<String>();
-        no1.add("1234");
-        no1.add("2345");
-        no1.add("1345");
-        List<String> no2 = new ArrayList<String>();
-        no2.add("4672");
-        no2.add("4612");
-        no2.add("9375");
-        List<String> no3 = new ArrayList<String>();
-        no3.add("7582");
-        no3.add(null);
-        no3.add(null);
-        List<String> no4 = new ArrayList<String>();
-        no3.add("3452");
-        no3.add("7842");
-        no3.add(null);
-        
-        Contact[] contact = {new Contact("person1", "address1", no1), new Contact("person2", "address2", no2), new Contact("person1", "address3", no3), new Contact("human2", "address4", no4)};
-        return contact;
+    public static Contact[] setData(String fileName){
+
+        JSONParser parser = new JSONParser();
+        List<Contact> contacts = new ArrayList<Contact>();
+
+        try{
+            Object obj = parser.parse(new FileReader(fileName));
+            JSONObject jsonobj = (JSONObject) obj;
+            JSONArray personArray = (JSONArray) jsonobj.get(PERSON);
+            Iterator<JSONObject> individualPerson = (Iterator<JSONObject>)personArray.iterator();
+            while(individualPerson.hasNext()){
+                JSONObject temp = individualPerson.next();
+                List<String> phoneNos = new ArrayList<String>();
+                phoneNos.add((String)temp.get(MOBILE_PH));
+                phoneNos.add((String)temp.get(HOME_PH));
+                phoneNos.add((String)temp.get(WORK_PH));
+                Contact contact = new Contact((String)temp.get(NAME), (String)temp.get(ADDRESS), phoneNos);
+                contacts.add(contact);
+            }
+        }
+        catch(Exception e){
+            System.out.println(e);
+        }
+        return contacts.toArray((new Contact[contacts.size()]));
     }
     
     public static void main(String[] args){
+        String fileName = "jsonFile.json";
         Scanner scanner = new Scanner(System.in);
 
-        Contact[] contact = setData();
+        Contact[] contact = setData(fileName);
 
         TwoKeyMap map = new TwoKeyMap();
         map.add(contact[0]);

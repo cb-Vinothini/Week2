@@ -1,0 +1,41 @@
+{
+    "Student": {
+        "Date Of Joining": "04/08/2015",
+        "ID": "ST123423",
+        "Marks": [
+            {
+                "Mark": 83,
+                "Subject": "Hindi"
+            },
+            {
+                "Mark": 89,
+                "Subject": "English"
+            },
+            {
+                "Mark": 98,
+                "Subject": "Maths"
+            },
+            {
+                "Mark": 97,
+                "Subject": "Science"
+            },
+            {
+                "Mark": 81,
+                "Subject": "Social Science"
+            }
+        ],
+        "Name": "Nithish",
+        "Std": "IX"
+    },
+    "Teacher": {
+        "Classes Taking Care Of": [
+            "VIII",
+            "IX",
+            "X"
+        ],
+        "Date Of Joining": "04/10/2013",
+        "ID": "EMP342323",
+        "Name": "Guru",
+        "Salary": 20000
+    }
+}
