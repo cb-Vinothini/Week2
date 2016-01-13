@@ -1,0 +1,61 @@
+{
+    "Output Header": ["Customer Id", "Subscription Id", "Invoice Id", "Invoice Date", "Start Date", "Amount", "Status", "Paid On", "Next Retry", "Refunded Amount", "Recurring", "First Invoice", "Tax Total", "Customer Details"],
+
+    "Invoice Number":{
+      "New Header": "Invoice Id",
+    },
+
+    "Customer First Name":{
+      "New Header": "Customer Details",
+      "Concatenate":"{\"First Name\" : \""
+    },
+
+    "Customer Last Name":{
+      "New Header": "Customer Details",
+      "Concatenate":"\", \"Last Name\" : \""
+    },
+
+    "Customer Email":{
+      "New Header": "Customer Details",
+      "Concatenate":"\", \"Email\" : \""
+    },
+
+    "Customer Company":{
+      "New Header": "Customer Details",
+      "Concatenate":"\", \"Company\" : \""
+    },
+
+    "Invoice Date":{
+      "New Header": "Invoice Date",
+      "From":"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+      "To":"M/dd/yyyy HH:mm:ss"
+    },
+
+    "Start Date":{
+      "New Header": "Start Date",
+      "From":"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+      "To":"M/dd/yyyy HH:mm:ss"
+    },
+
+    "Amount":{
+      "New Header": "Amount",
+      "Type":"Multiplication",
+      "Value":0.01,
+      "Decimal Place Pattern": "0.00"
+    },
+
+    "Refunded Amount":{
+      "New Header": "Refunded Amount",
+      "Type":"Division",
+      "Value":100.00,
+      "Decimal Place Pattern": "0.00"
+    },
+
+    "Tax Total":{
+      "New Header": "Tax Total",
+      "Type":"Multiplication",
+      "Value":0.01,
+      "Decimal Place Pattern": "0.00"
+    }
+
+  }
