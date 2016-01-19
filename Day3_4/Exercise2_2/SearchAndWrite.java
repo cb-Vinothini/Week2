@@ -2,6 +2,10 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.ArrayList;
+import java.util.List;
 import java.io.*;
 
 
@@ -21,9 +25,29 @@ public class SearchAndWrite{
             reader = new BufferedReader(new FileReader(fileName));
             String line;
             int lineCount = 0;
+            
+            Pattern pattern = Pattern.compile(word);
+
             while((line = reader.readLine()) != null){
                 lineCount++;
-                int charCount = 0;
+                boolean firstCheck = false;
+                Matcher m = pattern.matcher(line);
+                List<Integer> allMatches = new ArrayList<Integer>();
+                while (m.find()) {
+                    firstCheck = true;
+                    allMatches.add(m.start());
+                }
+                if(firstCheck){
+                    output.append(lineCount);
+                    output.append(":");
+                    for(Integer val : allMatches){
+                        output.append(val);
+                        output.append(",");
+                    }
+                    output.append("\n");
+                }
+
+                /*int charCount = 0;
                 boolean firstCheck = true;
                 String[] words = line.split(" ");
                 for(int i = 0; i < words.length; i++){
@@ -39,13 +63,12 @@ public class SearchAndWrite{
                             output.append(charCount);
                         }
                     }
-                    else{
-                        charCount += words[i].length();
-                        charCount++;
-                    }
+                    charCount += words[i].length();
+                    charCount++;
                 }
-                output.append("\n");
+                output.append("\n");*/
             }
+            System.out.println(output);
         }catch(Exception e){
             System.out.println(e);
         }finally{
