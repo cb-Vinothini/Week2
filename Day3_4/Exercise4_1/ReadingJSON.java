@@ -1,11 +1,10 @@
 import java.io.FileReader;
 import java.util.Iterator;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import java.lang.StringBuilder;
+import java.io.BufferedReader;
 import java.util.ArrayList;
 import java.util.List;
+import org.json.*;
 
 public class ReadingJSON{
     static final String STUDENT = "Student";
@@ -19,39 +18,54 @@ public class ReadingJSON{
     static final String TEACHER = "Teacher";
     static final String CLASSES_TAKING_CARE_OF = "Classes Taking Care Of";
     static final String SALARY = "Salary";
-
+    
+    public static String readFile(String filename) {
+        String result = "";
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(filename));
+            StringBuilder sb = new StringBuilder();
+            String line = br.readLine();
+            while (line != null) {
+                sb.append(line);
+                line = br.readLine();
+            }
+            result = sb.toString();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+    
     public static void main(String[] args){
-        JSONParser parser = new JSONParser();
         Student student = new Student();
         Teacher teacher = new Teacher();
         List<Mark> marks = new ArrayList<Mark>();
         try{
-            Object obj = parser.parse(new FileReader("students-teachers.json"));
-            JSONObject jsonobj = (JSONObject) obj;
-            JSONObject jsonStudent = (JSONObject) jsonobj.get(STUDENT);
-            student.id = (String)jsonStudent.get(ID);
-            student.name = (String)jsonStudent.get(NAME);
-            student.std = (String)jsonStudent.get(STD);
-            student.doj = (String)jsonStudent.get(DOJ);
-            JSONArray markArray = (JSONArray) jsonStudent.get(MARKS);
-            Iterator<JSONObject> iterator = (Iterator<JSONObject>)markArray.iterator();
-            while(iterator.hasNext()){
-                JSONObject jsonMark = (JSONObject) iterator.next();
-                marks.add(new Mark((Long)jsonMark.get(MARK),(String)jsonMark.get(SUBJECT)));
+            String jsonData = readFile("students-teachers.json");
+            JSONObject jsonobj = new JSONObject(jsonData);
+            
+            JSONObject jsonStudent = jsonobj.getJSONObject(STUDENT);
+            student.id = jsonStudent.getString(ID);
+            student.name = jsonStudent.getString(NAME);
+            student.std = jsonStudent.getString(STD);
+            student.doj = jsonStudent.getString(DOJ);
+            JSONArray markArray = jsonStudent.getJSONArray(MARKS);
+            for(int i=0;i < markArray.length(); i++){
+                JSONObject jsonMark = markArray.getJSONObject(i);
+                marks.add(new Mark(jsonMark.getLong(MARK), jsonMark.getString(SUBJECT)));
             }
             student.marks = marks.toArray(new Mark[marks.size()]);
             System.out.println(student);
             
-            JSONObject jsonTeacher = (JSONObject) jsonobj.get(TEACHER);
-            teacher.doj = (String) jsonTeacher.get(DOJ);
-            teacher.id = (String) jsonTeacher.get(ID);
-            teacher.name = (String) jsonTeacher.get(NAME);
-            teacher.sal = (Long) jsonTeacher.get(SALARY);
-            JSONArray jsonClassTakingCareOf = (JSONArray) jsonTeacher.get(CLASSES_TAKING_CARE_OF);
-            Iterator<String> iterator1 = (Iterator<String>)jsonClassTakingCareOf.iterator();
+            JSONObject jsonTeacher = jsonobj.getJSONObject(TEACHER);
+            teacher.doj = jsonTeacher.getString(DOJ);
+            teacher.id = jsonTeacher.getString(ID);
+            teacher.name = jsonTeacher.getString(NAME);
+            teacher.sal = jsonTeacher.getLong(SALARY);
+            JSONArray jsonClassTakingCareOf = jsonTeacher.getJSONArray(CLASSES_TAKING_CARE_OF);
             List<String> temp = new ArrayList<String>();
-            while(iterator1.hasNext()){
-                temp.add((String) iterator1.next());
+            for(int i=0;i < jsonClassTakingCareOf.length(); i++){
+                temp.add(jsonClassTakingCareOf.getString(i));
             }
             teacher.classTakingCareOf = temp.toArray(new String[temp.size()]);
             System.out.println(teacher);

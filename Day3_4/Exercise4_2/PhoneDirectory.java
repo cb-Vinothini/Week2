@@ -5,13 +5,10 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.io.*;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import java.util.Iterator;
+import org.json.*;
 
 public class PhoneDirectory{
-    private static final String [] FILE_HEADER_MAPPING = {"name","address","mobile","home","work"};
 
     private static final String PERSON = "Person";
     private static final String NAME = "name";
@@ -20,23 +17,40 @@ public class PhoneDirectory{
     private static final String HOME_PH = "home";
     private static final String WORK_PH = "work";
     
+    private static final String [] FILE_HEADER_MAPPING = {NAME, ADDRESS, MOBILE_PH, HOME_PH, WORK_PH};
+
+    public static String readFile(String filename) {
+        String result = "";
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(filename));
+            StringBuilder sb = new StringBuilder();
+            String line = br.readLine();
+            while (line != null) {
+                sb.append(line);
+                line = br.readLine();
+            }
+            result = sb.toString();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
     public static Contact[] setData(String fileName){
 
-        JSONParser parser = new JSONParser();
         List<Contact> contacts = new ArrayList<Contact>();
 
         try{
-            Object obj = parser.parse(new FileReader(fileName));
-            JSONObject jsonobj = (JSONObject) obj;
-            JSONArray personArray = (JSONArray) jsonobj.get(PERSON);
-            Iterator<JSONObject> individualPerson = (Iterator<JSONObject>)personArray.iterator();
-            while(individualPerson.hasNext()){
-                JSONObject temp = individualPerson.next();
+            String jsonData = readFile(fileName);
+            JSONObject jsonobj = new JSONObject(jsonData);
+            JSONArray personArray = jsonobj.getJSONArray(PERSON);
+            for(int i=0;i < personArray.length(); i++){
+                JSONObject temp = personArray.getJSONObject(i);
                 List<String> phoneNos = new ArrayList<String>();
-                phoneNos.add((String)temp.get(MOBILE_PH));
-                phoneNos.add((String)temp.get(HOME_PH));
-                phoneNos.add((String)temp.get(WORK_PH));
-                Contact contact = new Contact((String)temp.get(NAME), (String)temp.get(ADDRESS), phoneNos);
+                phoneNos.add(temp.getString(MOBILE_PH));
+                phoneNos.add(temp.getString(HOME_PH));
+                phoneNos.add(temp.getString(WORK_PH));
+                Contact contact = new Contact(temp.getString(NAME), temp.getString(ADDRESS), phoneNos);
                 contacts.add(contact);
             }
         }

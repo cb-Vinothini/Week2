@@ -1,9 +1,8 @@
 
 import org.apache.commons.csv.CSVRecord;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONArray;
+import org.json.*;
 import java.io.FileReader;
+import java.io.BufferedReader;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -51,18 +50,34 @@ public class JsonOperations{
     
     private static final String INVOICE_NO = "Invoice Number";
 */
-    
+
+    public static String readFile(String filename) {
+        String result = "";
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(filename));
+            StringBuilder sb = new StringBuilder();
+            String line = br.readLine();
+            while (line != null) {
+                sb.append(line);
+                line = br.readLine();
+            }
+            result = sb.toString();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
     static public List<String> formatRecords(String fileLocation, List<CSVRecord> records){
         //List<String> headerToChange = new LinkedList<String>();
         List<String> outputFormatted = new ArrayList<String>();
-        JSONParser parser = new JSONParser();
         try{
-            Object obj = parser.parse(new FileReader(fileLocation));
-            JSONObject jsonObj = (JSONObject) obj;
+            String jsonData = readFile(fileLocation);
+            JSONObject jsonobj = new JSONObject(jsonData);
             
-            Iterator<String> tempIterator = (Iterator<String>)((JSONArray)jsonObj.get(OUTPUT_HEADER)).iterator();
-            while(tempIterator.hasNext()){
-                outputHeader.add(tempIterator.next());
+            JSONArray array = jsonobj.getJSONArray(OUTPUT_HEADER);
+            for(int i=0;i < array.length(); i++){
+                outputHeader.add(array.getString(i));
             }
             CSVOperations.OUTPUT_FILE_HEADER = outputHeader;
 
@@ -76,11 +91,11 @@ public class JsonOperations{
                     switch(header){
                         case INVOICE_DATE :
                         case START_DATE:
-                            JSONObject jsonDate = (JSONObject) jsonObj.get(header);
-                            newHeader = (String)jsonDate.get(NEW_HEADER);
+                            JSONObject jsonDate = jsonobj.getJSONObject(header);
+                            newHeader = jsonDate.getString(NEW_HEADER);
                             if(csvValue != null){
-                                String fromDateFormat = (String)jsonDate.get(FROM);
-                                String toDateFormat = (String)jsonDate.get(TO);
+                                String fromDateFormat = jsonDate.getString(FROM);
+                                String toDateFormat = jsonDate.getString(TO);
                                 
                                 DateFormat originalFormat = new SimpleDateFormat(fromDateFormat);
                                 DateFormat targetFormat = new SimpleDateFormat(toDateFormat);
@@ -91,12 +106,12 @@ public class JsonOperations{
                         case AMOUNT:
                         case REFUNDED_AMOUNT:
                         case TAX_TOTAL:
-                            JSONObject jsonCalculation = (JSONObject) jsonObj.get(header);
-                            newHeader = (String)jsonCalculation.get(NEW_HEADER);
+                            JSONObject jsonCalculation = jsonobj.getJSONObject(header);
+                            newHeader = (String)jsonCalculation.getString(NEW_HEADER);
                             if(csvValue != null){
-                                String type = (String)jsonCalculation.get(TYPE);
-                                Double value = (Double)jsonCalculation.get(VALUE);
-                                String decimalPlacePattern = (String)jsonCalculation.get(DECIMAL_PLACE_PATTERN);
+                                String type = jsonCalculation.getString(TYPE);
+                                Double value = jsonCalculation.getDouble(VALUE);
+                                String decimalPlacePattern = jsonCalculation.getString(DECIMAL_PLACE_PATTERN);
                                 Double tempCsvValue = Double.parseDouble(csvValue);
                                 if(type.equals("Multiplication")){
                                     tempCsvValue *= value;
@@ -112,18 +127,18 @@ public class JsonOperations{
                         case CUST_LAST_NAME:
                         case CUST_EMAIL:
                         case CUST_COMPANY:
-                            JSONObject jsonCustomer = (JSONObject) jsonObj.get(header);
-                            newHeader = (String)jsonCustomer.get(NEW_HEADER);
+                            JSONObject jsonCustomer = jsonobj.getJSONObject(header);
+                            newHeader = (String)jsonCustomer.getString(NEW_HEADER);
                             if(header.equals(CUST_COMPANY)){
-                                custDetails.append((String)jsonCustomer.get(CONCATENATE)+csvValue+"\"}");
+                                custDetails.append(jsonCustomer.getString(CONCATENATE)+csvValue+"\"}");
                                 csvValue = custDetails.toString();
                             }else{
-                                custDetails.append((String)jsonCustomer.get(CONCATENATE)+csvValue);
+                                custDetails.append(jsonCustomer.getString(CONCATENATE)+csvValue);
                             }
                             break;
                         default:
                             try{
-                                newHeader = (String) ((JSONObject) jsonObj.get(header)).get(NEW_HEADER);
+                                newHeader = (jsonobj.getJSONObject(header)).getString(NEW_HEADER);
                             }
                             catch(Exception e){
                                 newHeader = header;

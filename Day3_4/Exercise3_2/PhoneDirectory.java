@@ -18,7 +18,7 @@ public class PhoneDirectory{
     private static final String HOME_PH = "home";
     private static final String WORK_PH = "work";
     
-    public static Contact[] setData(String fileName){
+    public static Contact[] setData(String fileName) throws IOException{
 
         FileReader fileReader = null;
         CSVParser csvFileParser = null;
@@ -44,15 +44,10 @@ public class PhoneDirectory{
             System.out.println(e);
         }
         finally{
-            try{
                 if(fileReader != null)
                     fileReader.close();
                 if(csvFileParser != null)
                     csvFileParser.close();
-            }
-            catch(IOException e){
-                System.out.println(e);
-            }
         }
         return contacts.toArray((new Contact[contacts.size()]));
     }
@@ -60,9 +55,13 @@ public class PhoneDirectory{
     public static void main(String[] args){
         String fileName = "phoneData.csv";
         Scanner scanner = new Scanner(System.in);
-
-        Contact[] contact = setData(fileName);
-
+        Contact[] contact = null;
+        try{
+            contact = setData(fileName);
+        }
+        catch(Exception e){
+            System.out.println(e);
+        }
         TwoKeyMap map = new TwoKeyMap();
         map.add(contact[0]);
         map.add(contact[1]);
