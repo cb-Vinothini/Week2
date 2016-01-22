@@ -10,21 +10,34 @@ public class RemoveDuplicate{
     private static final String NEW_LINE_SEPARATOR = "\n";
     
     public static void main(String[] args) throws IOException{
-        Set<String> set = null;
         Reader in = null;
+        Map<TestHashCode, String[]> map = null;
+//        TestHashCode obj1 = new TestHashCode(2);
+//        obj1.values[0] = "val1";
+//        obj1.values[1] = "val2";
+//        
+//        TestHashCode obj2 = new TestHashCode(2);
+//        obj2.values[0] = "val1";
+//        obj2.values[1] = "val2";
+//        
+//        System.out.println(obj1.equals(obj2));
+//        System.out.println(obj1.hashCode());
+//        System.out.println(obj2.hashCode());
+        
         try{
-            set = new HashSet<String>();
+            map =  new HashMap<TestHashCode, String[]>();
             String name = "csvFile.csv";
             in = new FileReader(name);
             Iterable<CSVRecord> records = CSVFormat.EXCEL.parse(in);
             for (CSVRecord record : records) {
-                StringBuilder line = new StringBuilder();
+                int size = record.size();
+                TestHashCode tempObject = new TestHashCode(size);
+                int index = 0;
                 for (String field : record) {
-                    line.append(field+",");
+                    tempObject.values[index++] = field;
                 }
-                set.add(line.toString());
+                map.put(tempObject, tempObject.values);
             }
-            System.out.println(set);
         }
         catch(IOException ioexc){
             System.out.println(ioexc);
@@ -40,9 +53,8 @@ public class RemoveDuplicate{
         try{
             fileWriter = new FileWriter(fileName);
             csvFilePrinter = new CSVPrinter(fileWriter, csvFileFormat);
-            for(String str: set){
-                String[] temp = str.split(",");
-                csvFilePrinter.printRecord(Arrays.asList(temp));
+            for(String[] str: map.values()){
+                csvFilePrinter.printRecord(Arrays.asList(str));
             }
         }catch(IOException ioexc){
             System.out.println(ioexc);
@@ -54,3 +66,39 @@ public class RemoveDuplicate{
         }
     }
 }
+
+class TestHashCode{
+    public String[] values;
+    
+    TestHashCode(int size){
+        values = new String[size];
+    }
+    
+    @Override
+    public boolean equals(Object obj){
+        if(this == obj)
+            return true;
+        if((obj == null) || (obj.getClass() != this.getClass())){
+            return false;
+        }
+        TestHashCode castedObj = (TestHashCode)obj;
+        int i = 0;
+        for(String str : castedObj.values){
+            if((values[i++].hashCode()) != (str.hashCode())){
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    @Override
+    public int hashCode(){
+        int hashValue = 0;
+        for(String str : values){
+            hashValue += str.hashCode();
+        }
+        return hashValue;
+    }
+    
+}
+
